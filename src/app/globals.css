@@ -1,26 +1,80 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+  --color-brand-cyan: #00f2fe;
+  --color-brand-blue: #4facfe;
+  --color-brand-dark: #0a0a0a;
+  --font-orbitron: "Orbitron", sans-serif;
+  --font-inter: "Inter", sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #030712;
+  color: #ededed;
+  overflow-x: hidden;
+  font-family: var(--font-inter);
+}
+
+/* Animated Neon Grid Background */
+.bg-grid {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(ellipse 80% 50% at 50% 0%, #000 70%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 50% at 50% 0%, #000 70%, transparent 100%);
+  z-index: -10;
+  pointer-events: none;
+}
+
+/* Blurred Ambient Orbs */
+.glow-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: -11;
+  opacity: 0.4;
+  pointer-events: none;
+  animation: float 20s infinite ease-in-out alternate;
+}
+
+.glow-orb-1 { width: 600px; height: 600px; background: rgba(6, 182, 212, 0.2); top: -200px; left: -100px; }
+.glow-orb-2 { width: 500px; height: 500px; background: rgba(59, 130, 246, 0.2); bottom: -100px; right: -100px; animation-delay: -5s; }
+.glow-orb-3 { width: 700px; height: 700px; background: rgba(139, 92, 246, 0.15); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -10s; }
+
+@keyframes float {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(40px) scale(1.05); }
+  100% { transform: translateY(-30px) scale(0.95); }
+}
+
+/* Premium Glass Panel */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.15); /* Glossy top edge intercepting light */
+  border-radius: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.glass-panel:hover {
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 20px rgba(6, 182, 212, 0.1);
+}
+
+/* Text glow & gradient */
+.text-glow {
+  text-shadow: 0 0 25px rgba(6, 182, 212, 0.8);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

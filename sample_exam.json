@@ -1,0 +1,49 @@
+{
+  "title": "Computer Science & Logic Evaluation",
+  "description": "A brief preliminary assessment of general computer science knowledge and logic.",
+  "questions": [
+    {
+      "id": "cs_01",
+      "text": "Which of the following data structures operates on a Last-In-First-Out (LIFO) principle?",
+      "options": [
+        "Queue",
+        "Linked List",
+        "Stack",
+        "Binary Tree"
+      ],
+      "correct_answer": "Stack"
+    },
+    {
+      "id": "cs_02",
+      "text": "What is the time complexity of a binary search algorithm in the worst-case scenario?",
+      "options": [
+        "O(1)",
+        "O(n)",
+        "O(log n)",
+        "O(n^2)"
+      ],
+      "correct_answer": "O(log n)"
+    },
+    {
+      "id": "cs_03",
+      "text": "Which of these is NOT a primary key property in relational databases?",
+      "options": [
+        "Unique",
+        "Not Null",
+        "Mutable",
+        "Indexed"
+      ],
+      "correct_answer": "Mutable"
+    },
+    {
+      "id": "logic_01",
+      "text": "If all Bloops are Razzies and all Razzies are Lazzies, then are all Bloops Lazzies?",
+      "options": [
+        "Yes",
+        "No",
+        "Depends on the Razzie"
+      ],
+      "correct_answer": "Yes"
+    }
+  ]
+}
