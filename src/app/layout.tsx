@@ -31,7 +31,6 @@ export default function RootLayout({
       >
         <Script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" strategy="beforeInteractive" />
         <Script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" strategy="beforeInteractive" />
-        <div className="bg-grid absolute inset-0"></div>
         <div className="glow-orb glow-orb-1 absolute"></div>
         <div className="glow-orb glow-orb-2 absolute"></div>
         <div className="glow-orb glow-orb-3 absolute"></div>

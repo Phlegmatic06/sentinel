@@ -26,6 +26,7 @@ export default function ExamBuilderPage() {
   // AI Generator State
   const [aiSourceText, setAiSourceText] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   // -- Manual Builders --
   const addQuestion = () => {
@@ -96,11 +97,12 @@ export default function ExamBuilderPage() {
 
   // -- Finalization --
   const saveExam = async () => {
-    if (!title || questions.length === 0) return alert("Title and at least 1 question required.");
+    setErrorMsg("");
+    if (!title || questions.length === 0) return setErrorMsg("Title and at least 1 question required.");
     
     // Ensure all questions have a correct answer selected out of non-empty options
     const valid = questions.every(q => q.text && q.correct_answer && q.options.filter(o => o.trim()).length >= 2);
-    if (!valid) return alert("Please ensure all questions have text, at least 2 options, and a correct answer selected.");
+    if (!valid) return setErrorMsg("Please ensure all questions have text, at least 2 options, and a correct answer selected.");
 
     const examData = {
       title,
@@ -114,13 +116,17 @@ export default function ExamBuilderPage() {
       }))
     };
 
-    await uploadExam({
-      title: examData.title,
-      description: examData.description,
-      questions: examData.questions
-    });
-    
-    router.push("/dashboard/admin");
+    try {
+      await uploadExam({
+        title: examData.title,
+        description: examData.description,
+        questions: examData.questions,
+        duration_minutes: examData.duration_minutes
+      });
+      router.push("/dashboard/admin");
+    } catch (err: any) {
+      setErrorMsg("Failed to upload exam to database: " + err.message);
+    }
   };
 
   return (
@@ -294,6 +300,12 @@ export default function ExamBuilderPage() {
               <span className="font-bold text-green-400">DRAFT</span>
             </div>
           </div>
+          
+          {errorMsg && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm font-inter">
+              {errorMsg}
+            </div>
+          )}
 
           <button 
             onClick={saveExam}

@@ -14,6 +14,7 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
   const [exam, setExam] = useState<Exam | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionActive, setSessionActive] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
   const [candidateName, setCandidateName] = useState("");
   const [answers, setAnswers] = useState<{ [qId: string]: string }>({});
   const [submitted, setSubmitted] = useState(false);
@@ -79,9 +80,13 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
       
       if (!document.fullscreenElement && !docEl.webkitFullscreenElement && requestFS) {
         await requestFS.call(docEl);
+      } else if (!requestFS) {
+        return alert("Your browser does not support Fullscreen Mode. Please use a modern browser.");
       }
     } catch (err) {
       console.warn("Fullscreen request failed", err);
+      alert("You MUST allow Fullscreen mode to begin this exam. Please check your browser permissions.");
+      return; // Block entry
     }
     setSessionActive(true);
   };
@@ -147,9 +152,10 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
   useEffect(() => {
     if (!sessionActive || submitted) return;
 
-    const enforceFocus = async () => {
+    const enforceFocus = () => {
       console.warn("Anti-cheat flag: Tab Switch/Window Blur.");
-      await logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Window Blur / Tab Switch`, null);
+      // Fire and forget, don't delay submission!
+      logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Window Blur / Tab Switch / Task Manager Opened`, null).catch(e => console.error(e));
       submitRef.current();
     };
 
@@ -158,18 +164,32 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
     };
 
     const handleFullscreen = () => {
-      if (!document.fullscreenElement) {
+      if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
         console.warn("Anti-cheat flag: Exited Fullscreen manually.");
         enforceFocus();
       }
     };
+    
+    // Extensive Keyboard Restriction
+    const handleKeydown = (e: KeyboardEvent) => {
+      // Block F1-F12 keys, Ctrl, Alt combinations usually used for DevTools, Print, TaskMgr, etc.
+      if (
+        e.key.startsWith("F") || 
+        (e.ctrlKey && ['p','c','v','x','s','shift','i','u'].includes(e.key.toLowerCase())) ||
+        (e.altKey && e.key === 'Tab')
+      ) {
+        e.preventDefault();
+      }
+    };
 
     window.addEventListener("blur", enforceFocus);
+    window.addEventListener("keydown", handleKeydown);
     document.addEventListener("visibilitychange", handleVisibility);
     document.addEventListener("fullscreenchange", handleFullscreen);
 
     return () => {
       window.removeEventListener("blur", enforceFocus);
+      window.removeEventListener("keydown", handleKeydown);
       document.removeEventListener("visibilitychange", handleVisibility);
       document.removeEventListener("fullscreenchange", handleFullscreen);
     };
@@ -257,11 +277,11 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
               </div>
 
               <button 
-                disabled={!candidateName.trim()}
+                disabled={!candidateName.trim() || !cameraReady}
                 onClick={startExam}
                 className="mt-6 w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all font-orbitron tracking-wider"
               >
-                ACCEPT & START EXAM
+                {cameraReady ? "ACCEPT & START EXAM" : "AWAITING CAMERA SENSOR..."}
               </button>
             </div>
           ) : (
@@ -314,7 +334,10 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
             </h3>
             
             <div className="w-full relative">
-               <SentinelEngine onViolation={sessionActive ? handleViolation : undefined} />
+               <SentinelEngine 
+                 onViolation={sessionActive ? handleViolation : undefined} 
+                 onReady={setCameraReady}
+               />
                
                {!sessionActive && (
                  <div className="absolute inset-0 z-40 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 border border-cyan-500/30 rounded-xl">

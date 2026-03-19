@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sentinel AI 🛡️
 
-## Getting Started
+Sentinel AI is a next-generation auto-proctoring exam platform. It leverages advanced on-device computer vision models running via WebGL to ensure academic integrity in fully remote environments.
 
-First, run the development server:
+## Core Features
+- **Real-Time Proctoring**: Utilizes TensorFlow.js, MediaPipe FaceMesh, and the COCO-SSD object detection models.
+- **Identity & Presence Checks**: Detects if the candidate leaves the frame, if multiple people are present, or if there is severe gaze deviation.
+- **Prohibited Items Detection**: Automatically detects cell phones, laptops, and books in the webcam feed.
+- **Evidence Vault**: Securely captures snapshots of violations and logs them to a Supabase backend.
+- **AI-Powered Exam Generation**: Dynamically creates MCQ tests from source text using the fast Groq Llama 3 API.
 
+## Tech Stack
+- **Framework**: Next.js 16 (App Router)
+- **Styling**: Tailwind CSS & Lucide React
+- **AI/ML**: `@tensorflow/tfjs`, `@tensorflow-models/coco-ssd`, `@mediapipe/face_mesh`, `groq-sdk`
+- **Backend & DB**: Supabase (PostgreSQL, Realtime, Storage)
+
+## Setup and Installation
+
+### 1. Clone & Install
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/sentinel.git
+cd sentinel
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Variables
+Copy `.env.local.example` to `.env.local` (or create it) and populate the following keys:
+```env
+# Groq API for AI Exam Generation
+GROQ_API_KEY="your_groq_api_key_here"
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Supabase (See Supabase Setup Guide)
+NEXT_PUBLIC_SUPABASE_URL="your_supabase_project_url"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your_supabase_anon_key"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Run Locally
+```bash
+npm run dev
+```
 
-## Learn More
+## Deployment Options
 
-To learn more about Next.js, take a look at the following resources:
+### Deploying to Vercel (Recommended)
+Sentinel AI is optimized for Vercel.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Create a GitHub repository and push your local code:
+```bash
+git remote add origin https://github.com/your-username/sentinel.git
+git branch -M main
+git push -u origin main
+```
+2. Go to [Vercel](https://vercel.com/new).
+3. Import your `sentinel` GitHub repository.
+4. Add the **Environment Variables** (`GROQ_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) in the Vercel project settings before deploying.
+5. Click **Deploy**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Supabase Schema
+See `supabase_setup_guide.md` for full instructions on setting up the database tables (`sentinel_exams`, `sentinel_submissions`, `sentinel_logs`) and the `sentinel-evidence` storage bucket.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Built to ensure trust and integrity in digital assessments.*

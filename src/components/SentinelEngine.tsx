@@ -23,9 +23,10 @@ export type ViolationType =
 
 interface SentinelEngineProps {
   onViolation?: (type: ViolationType, imageBlob: Blob | null) => void;
+  onReady?: (ready: boolean) => void;
 }
 
-export default function SentinelEngine({ onViolation }: SentinelEngineProps) {
+export default function SentinelEngine({ onViolation, onReady }: SentinelEngineProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [isLoaded, setIsLoaded] = useState(false);
@@ -39,9 +40,12 @@ export default function SentinelEngine({ onViolation }: SentinelEngineProps) {
   const presenceDevStartTimeRef = useRef<number | null>(null);
 
   const onViolationRef = useRef(onViolation);
+  const onReadyRef = useRef(onReady);
+  
   useEffect(() => {
     onViolationRef.current = onViolation;
-  }, [onViolation]);
+    onReadyRef.current = onReady;
+  }, [onViolation, onReady]);
 
   // Take a snapshot
   const captureSnapshotAsync = useCallback((): Promise<Blob | null> => {
@@ -180,13 +184,16 @@ export default function SentinelEngine({ onViolation }: SentinelEngineProps) {
               height: 720,
             });
             
-            camera.start();
+            
+            await camera.start();
           }
         }
         setIsLoaded(true);
+        if (onReadyRef.current) onReadyRef.current(true);
 
       } catch (err) {
         console.error("Failed to initialize Sentinel Engine", err);
+        if (onReadyRef.current) onReadyRef.current(false);
       }
     };
 
