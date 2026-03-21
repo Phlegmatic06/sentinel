@@ -11,6 +11,7 @@ type QuestionDraft = {
   text: string;
   options: string[];
   correct_answer: string;
+  correct_index?: number; // track by index to prevent identical string bugs
 };
 
 export default function ExamBuilderPage() {
@@ -29,7 +30,10 @@ export default function ExamBuilderPage() {
           setTitle(exam.title);
           setDescription(exam.description || "");
           setDurationMinutes(exam.duration_minutes || 0);
-          setQuestions(exam.questions);
+          setQuestions(exam.questions.map(q => ({
+            ...q,
+            correct_index: q.options.indexOf(q.correct_answer)
+          })));
         }
       });
     }
@@ -55,6 +59,7 @@ export default function ExamBuilderPage() {
         text: "",
         options: ["", "", "", ""],
         correct_answer: "",
+        correct_index: -1,
       }
     ]);
   };
@@ -72,14 +77,20 @@ export default function ExamBuilderPage() {
       if (q.id === qId) {
         const newOpts = [...q.options];
         newOpts[optIdx] = val;
-        return { ...q, options: newOpts };
+        
+        let newCorrectAnswer = q.correct_answer;
+        if (q.correct_index === optIdx) {
+           newCorrectAnswer = val;
+        }
+
+        return { ...q, options: newOpts, correct_answer: newCorrectAnswer };
       }
       return q;
     }));
   };
 
-  const setCorrectOption = (qId: string, val: string) => {
-    setQuestions(questions.map(q => q.id === qId ? { ...q, correct_answer: val } : q));
+  const setCorrectOption = (qId: string, optIdx: number, val: string) => {
+    setQuestions(questions.map(q => q.id === qId ? { ...q, correct_answer: val, correct_index: optIdx } : q));
   };
 
   // -- AI Generator Implementation --
@@ -103,7 +114,10 @@ export default function ExamBuilderPage() {
       if (data.questions && Array.isArray(data.questions)) {
         setTitle("AI Generated Knowledge Check");
         setDescription(`Generated from source material: "${aiSourceText.substring(0, 50)}..."`);
-        setQuestions([...questions, ...data.questions]);
+        setQuestions([...questions, ...data.questions.map((q: any) => ({
+          ...q,
+          correct_index: q.options.indexOf(q.correct_answer)
+        }))]);
         setActiveTab("MANUAL");
       }
     } catch (err: any) {
@@ -119,7 +133,7 @@ export default function ExamBuilderPage() {
     if (!title || questions.length === 0) return setErrorMsg("Title and at least 1 question required.");
     
     // Ensure all questions have a correct answer selected out of non-empty options
-    const valid = questions.every(q => q.text && q.correct_answer && q.options.filter(o => o.trim()).length >= 2);
+    const valid = questions.every(q => q.text && q.correct_index !== undefined && q.correct_index >= 0 && q.options[q.correct_index]?.trim() && q.options.filter(o => o.trim()).length >= 2);
     if (!valid) return setErrorMsg("Please ensure all questions have text, at least 2 options, and a correct answer selected.");
 
     const examData = {
@@ -130,7 +144,7 @@ export default function ExamBuilderPage() {
         id: q.id,
         text: q.text,
         options: q.options.filter(o => o.trim()),
-        correct_answer: q.correct_answer
+        correct_answer: q.options[q.correct_index!] // safely grab correct string value
       }))
     };
 
@@ -280,8 +294,8 @@ export default function ExamBuilderPage() {
                           <input 
                             type="radio"
                             name={`correct_${q.id}`}
-                            checked={q.correct_answer === opt && opt !== ""}
-                            onChange={() => setCorrectOption(q.id, opt)}
+                            checked={q.correct_index === oIdx}
+                            onChange={() => setCorrectOption(q.id, oIdx, opt)}
                             disabled={!opt.trim()}
                             className="w-4 h-4 accent-cyan-500 cursor-pointer"
                           />
