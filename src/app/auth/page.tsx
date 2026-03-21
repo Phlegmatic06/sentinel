@@ -39,7 +39,18 @@ export default function AuthPage() {
         setPassword("");
       }
     } catch (err: any) {
-      setError(err.message || "An error occurred during authentication.");
+      console.error("Auth Exception:", err);
+      let errorText = "An error occurred during authentication.";
+      if (typeof err === "string") {
+        errorText = err;
+      } else if (err?.message && err.message !== "{}") {
+        errorText = err.message;
+      } else if (JSON.stringify(err) === "{}") {
+        errorText = "SMTP Connection Failed. Please double-check your Supabase SMTP settings.";
+      } else if (err?.error_description) {
+        errorText = err.error_description;
+      }
+      setError(errorText);
     } finally {
       setLoading(false);
     }
