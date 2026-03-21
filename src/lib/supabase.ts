@@ -5,7 +5,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholde
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export async function logSentinelViolation(type: string, imageBlob: Blob | null) {
+export async function logSentinelViolation(type: string, imageBlob: Blob | null, examId?: string) {
   let imageUrl: string | null = null;
   
   if (imageBlob && supabaseUrl !== "https://placeholder-url.supabase.co") {
@@ -35,7 +35,8 @@ export async function logSentinelViolation(type: string, imageBlob: Blob | null)
       .from('sentinel_logs')
       .insert({
         violation_type: type,
-        image_url: imageUrl
+        image_url: imageUrl,
+        exam_id: examId
       });
       
     if (dbError) {
@@ -46,6 +47,7 @@ export async function logSentinelViolation(type: string, imageBlob: Blob | null)
     console.log("[MOCK DB INSERT] Sentinel Log:", {
       violation_type: type,
       image_url: imageUrl || 'mock-image-url.jpg',
+      exam_id: examId,
       created_at: new Date().toISOString()
     });
   }

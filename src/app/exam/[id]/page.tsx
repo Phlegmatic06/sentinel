@@ -32,7 +32,7 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
 
   const handleViolation = async (type: ViolationType, blob: Blob | null) => {
     console.warn(`EXAM PROCTORING: ${type} violation logged for candidate ${candidateName || "unknown"}`);
-    await logSentinelViolation(`EXAM [${examId}] - ${candidateName}: ${type}`, blob);
+    await logSentinelViolation(`EXAM [${examId}] - ${candidateName}: ${type}`, blob, examId);
   };
 
   const calculateScore = () => {
@@ -155,7 +155,7 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
     const enforceFocus = () => {
       console.warn("Anti-cheat flag: Tab Switch/Window Blur.");
       // Fire and forget, don't delay submission!
-      logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Window Blur / Tab Switch / Task Manager Opened`, null).catch(e => console.error(e));
+      logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Window Blur / Tab Switch / Task Manager Opened`, null, examId).catch(e => console.error(e));
       submitRef.current();
     };
 
