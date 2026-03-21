@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Upload, FileJson, CheckCircle, Database, Trash2, Edit } from "lucide-react";
+import { Upload, FileJson, CheckCircle, Database, Trash2, Edit, Copy } from "lucide-react";
 import Link from "next/link";
 import { uploadExam, fetchExams, deleteExam, Exam } from "@/lib/examService";
 
@@ -10,6 +10,14 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopyLink = (id: string) => {
+    const link = `${window.location.origin}/exam/${id}`;
+    navigator.clipboard.writeText(link);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   const loadExams = async () => {
     setLoading(true);
@@ -191,13 +199,17 @@ export default function AdminPage() {
                       >
                         Submissions
                       </Link>
-                      <a 
-                        href={`/exam/${exam.id}`}
-                        target="_blank"
-                        className="text-xs bg-cyan-950/40 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/20 hover:bg-cyan-900/60 transition-colors"
+                      <button 
+                        onClick={() => handleCopyLink(exam.id)}
+                        className="text-xs bg-cyan-950/40 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/20 hover:bg-cyan-900/60 transition-colors flex items-center gap-1"
+                        title="Copy Exam Link"
                       >
-                        Test Link ↗
-                      </a>
+                        {copiedId === exam.id ? (
+                          <><CheckCircle className="w-3 h-3" /> Copied</>
+                        ) : (
+                          <><Copy className="w-3 h-3" /> Copy Link</>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>
