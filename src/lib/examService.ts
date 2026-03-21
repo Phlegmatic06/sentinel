@@ -69,6 +69,47 @@ export async function fetchExams(): Promise<Exam[]> {
   }
 }
 
+export async function deleteExam(id: string): Promise<boolean> {
+  if (isSupabaseConfigured()) {
+    const { error } = await supabase.from('sentinel_exams').delete().eq('id', id);
+    if (error) {
+      console.error(error);
+      return false;
+    }
+    return true;
+  } else {
+    if (typeof window !== "undefined") {
+      let exams = JSON.parse(window.localStorage.getItem('sentinel_exams') || '[]') as Exam[];
+      exams = exams.filter(e => e.id !== id);
+      window.localStorage.setItem('sentinel_exams', JSON.stringify(exams));
+      return true;
+    }
+    return false;
+  }
+}
+
+export async function updateExam(id: string, examData: Partial<Omit<Exam, 'id' | 'created_at'>>): Promise<boolean> {
+  if (isSupabaseConfigured()) {
+    const { error } = await supabase.from('sentinel_exams').update(examData).eq('id', id);
+    if (error) {
+      console.error(error);
+      return false;
+    }
+    return true;
+  } else {
+    if (typeof window !== "undefined") {
+      const exams = JSON.parse(window.localStorage.getItem('sentinel_exams') || '[]') as Exam[];
+      const index = exams.findIndex(e => e.id === id);
+      if (index !== -1) {
+        exams[index] = { ...exams[index], ...examData };
+        window.localStorage.setItem('sentinel_exams', JSON.stringify(exams));
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
 export async function getExamById(id: string): Promise<Exam | null> {
   if (isSupabaseConfigured()) {
     const { data, error } = await supabase.from('sentinel_exams').select('*').eq('id', id).single();

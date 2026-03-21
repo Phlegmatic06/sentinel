@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Upload, FileJson, CheckCircle, Database } from "lucide-react";
+import { Upload, FileJson, CheckCircle, Database, Trash2, Edit } from "lucide-react";
 import Link from "next/link";
-import { uploadExam, fetchExams, Exam } from "@/lib/examService";
+import { uploadExam, fetchExams, deleteExam, Exam } from "@/lib/examService";
 
 export default function AdminPage() {
   const [exams, setExams] = useState<Exam[]>([]);
@@ -16,6 +16,20 @@ export default function AdminPage() {
     const data = await fetchExams();
     setExams(data);
     setLoading(false);
+  };
+
+  const handleDeleteExam = async (id: string, title: string) => {
+    if (confirm(`Are you sure you want to delete the exam "${title}"?`)) {
+      setLoading(true);
+      const success = await deleteExam(id);
+      if (success) {
+        setSuccessMsg(`Exam "${title}" deleted successfully.`);
+        loadExams();
+      } else {
+        setErrorMsg(`Failed to delete exam "${title}".`);
+        setLoading(false);
+      }
+    }
   };
 
   useEffect(() => {
@@ -157,6 +171,20 @@ export default function AdminPage() {
                   <div className="mt-2 pt-3 border-t border-white/5 flex items-center justify-between">
                     <span className="text-xs text-slate-500 font-mono">ID: {exam.id.slice(0, 8)}...</span>
                     <div className="flex items-center gap-2">
+                      <Link
+                        href={`/dashboard/admin/builder?edit=${exam.id}`}
+                        className="text-xs bg-blue-950/40 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20 hover:bg-blue-900/60 transition-colors flex items-center gap-1"
+                        title="Edit Exam"
+                      >
+                        <Edit className="w-3 h-3" /> Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDeleteExam(exam.id, exam.title)}
+                        className="text-xs bg-red-950/40 text-red-400 px-3 py-1 rounded-full border border-red-500/20 hover:bg-red-900/60 transition-colors flex items-center gap-1"
+                        title="Delete Exam"
+                      >
+                        <Trash2 className="w-3 h-3" /> Delete
+                      </button>
                       <Link 
                         href={`/dashboard/admin/exam/${exam.id}`}
                         className="text-xs bg-purple-950/40 text-purple-400 px-3 py-1 rounded-full border border-purple-500/20 hover:bg-purple-900/60 transition-colors"

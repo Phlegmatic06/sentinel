@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { uploadExam } from "@/lib/examService";
+import { useState, useEffect } from "react";
+import { uploadExam, updateExam, getExamById } from "@/lib/examService";
 import { ShieldCheck, BrainCircuit, PenTool, PlusCircle, Trash2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,24 @@ export default function ExamBuilderPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"MANUAL" | "AI">("MANUAL");
   
+  const [editId, setEditId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('edit');
+    if (id) {
+      getExamById(id).then(exam => {
+        if (exam) {
+          setEditId(id);
+          setTitle(exam.title);
+          setDescription(exam.description || "");
+          setDurationMinutes(exam.duration_minutes || 0);
+          setQuestions(exam.questions);
+        }
+      });
+    }
+  }, []);
+
   // Exam Outline State
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -117,12 +135,21 @@ export default function ExamBuilderPage() {
     };
 
     try {
-      await uploadExam({
-        title: examData.title,
-        description: examData.description,
-        questions: examData.questions,
-        duration_minutes: examData.duration_minutes
-      });
+      if (editId) {
+        await updateExam(editId, {
+          title: examData.title,
+          description: examData.description,
+          questions: examData.questions,
+          duration_minutes: examData.duration_minutes
+        });
+      } else {
+        await uploadExam({
+          title: examData.title,
+          description: examData.description,
+          questions: examData.questions,
+          duration_minutes: examData.duration_minutes
+        });
+      }
       router.push("/dashboard/admin");
     } catch (err: any) {
       setErrorMsg("Failed to upload exam to database: " + err.message);
@@ -312,7 +339,7 @@ export default function ExamBuilderPage() {
             disabled={questions.length === 0}
             className="w-full py-4 mt-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all font-orbitron flex items-center justify-center gap-2"
           >
-            FINALIZE EXAM <ArrowRight className="w-4 h-4" />
+            {editId ? "UPDATE EXAM" : "FINALIZE EXAM"} <ArrowRight className="w-4 h-4" />
           </button>
         </div>
 
