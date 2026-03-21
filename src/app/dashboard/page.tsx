@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ExternalLink, ShieldAlert, X } from "lucide-react";
+import { ExternalLink, ShieldAlert, X, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type LogEntry = {
   id: string;
@@ -16,6 +17,12 @@ export default function DashboardPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/auth");
+  };
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -87,6 +94,13 @@ export default function DashboardPage() {
           >
             Return to Monitor
           </Link>
+          <button 
+            onClick={handleLogout}
+            className="px-4 py-2 rounded-full border border-red-500/20 bg-red-950/20 text-red-400 hover:bg-red-900/40 transition-colors text-sm font-medium flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
         </div>
       </div>
 

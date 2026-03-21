@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Upload, FileJson, CheckCircle, Database, Trash2, Edit, Copy } from "lucide-react";
+import { Upload, FileJson, CheckCircle, Database, Trash2, Edit, Copy, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { uploadExam, fetchExams, deleteExam, Exam } from "@/lib/examService";
 
 export default function AdminPage() {
@@ -11,6 +13,12 @@ export default function AdminPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/auth");
+  };
 
   const handleCopyLink = (id: string) => {
     const link = `${window.location.origin}/exam/${id}`;
@@ -106,6 +114,13 @@ export default function AdminPage() {
           >
             Back to Vault
           </Link>
+          <button 
+            onClick={handleLogout}
+            className="px-4 py-2 rounded-full border border-red-500/20 bg-red-950/20 text-red-400 hover:bg-red-900/40 transition-colors text-sm font-medium flex items-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
         </div>
       </div>
 

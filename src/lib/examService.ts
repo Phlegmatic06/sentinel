@@ -16,6 +16,7 @@ export interface Exam {
   duration_minutes?: number; // Optional exam timer
   questions: Question[];
   created_at: string;
+  user_id?: string;
 }
 
 export interface ExamSubmission {
@@ -33,11 +34,18 @@ const isSupabaseConfigured = () => {
 };
 
 export async function uploadExam(examData: Omit<Exam, 'id' | 'created_at'>): Promise<string> {
+  let userId = null;
+  if (isSupabaseConfigured()) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) userId = user.id;
+  }
+
   const id = crypto.randomUUID();
   const exam: Exam = {
     ...examData,
     id,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    ...(userId ? { user_id: userId } : {})
   };
 
   if (isSupabaseConfigured()) {
@@ -55,7 +63,15 @@ export async function uploadExam(examData: Omit<Exam, 'id' | 'created_at'>): Pro
 
 export async function fetchExams(): Promise<Exam[]> {
   if (isSupabaseConfigured()) {
-    const { data, error } = await supabase.from('sentinel_exams').select('*').order('created_at', { ascending: false });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return []; // User must be logged in to fetch exams in dashboard
+
+    const { data, error } = await supabase
+      .from('sentinel_exams')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+      
     if (error) {
       console.error(error);
       return [];
