@@ -7,7 +7,7 @@ import { ShieldAlert, Loader2 } from "lucide-react";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,22 +21,29 @@ export default function AuthPage() {
     setMessage(null);
 
     try {
+      // Allow user to use email OR username. 
+      // If no '@', we assume username and append a dummy domain.
+      const isEmail = identifier.includes("@");
+      const formattedEmail = isEmail 
+        ? identifier 
+        : `${identifier.toLowerCase().replace(/\\s+/g, '')}@sentinel.app`;
+
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: formattedEmail,
           password,
         });
         if (error) throw error;
         router.push("/dashboard/admin");
       } else {
         const { error } = await supabase.auth.signUp({
-          email,
+          email: formattedEmail,
           password,
         });
         if (error) throw error;
-        setMessage("Account created successfully! Please check your email for verification, or if auto-confirm is enabled, you can now log in.");
-        // If auto-confirm is enabled:
+        setMessage("Account created successfully! You can now log in.");
         setIsLogin(true);
+        setPassword("");
       }
     } catch (err: any) {
       setError(err.message || "An error occurred during authentication.");
@@ -84,14 +91,14 @@ export default function AuthPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
-                  Email Configuration
+                  Email or Username
                 </label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all"
-                  placeholder="admin@sentinel.sys"
+                  placeholder="admin@sentinel.sys OR commander_zero"
                   required
                 />
               </div>
