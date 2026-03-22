@@ -149,24 +149,35 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const blurCountRef = useRef(0);
+
   useEffect(() => {
     if (!sessionActive || submitted) return;
 
-    const enforceFocus = () => {
-      console.warn("Anti-cheat flag: Tab Switch/Window Blur.");
-      // Fire and forget, don't delay submission!
-      logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Window Blur / Tab Switch / Task Manager Opened`, null, examId).catch(e => console.error(e));
-      submitRef.current();
+    const handleBlur = () => {
+      blurCountRef.current += 1;
+      console.warn(`Anti-cheat flag: Window Blur (strike ${blurCountRef.current}/2).`);
+      logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Window Blur (strike ${blurCountRef.current})`, null, examId).catch(e => console.error(e));
+      
+      if (blurCountRef.current >= 2) {
+        console.warn("2 blur violations reached — auto-submitting.");
+        submitRef.current();
+      }
     };
 
     const handleVisibility = () => {
-      if (document.hidden) enforceFocus();
+      if (document.hidden) {
+        console.warn("Anti-cheat flag: Tab Switch detected — auto-submitting.");
+        logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Tab Switch`, null, examId).catch(e => console.error(e));
+        submitRef.current();
+      }
     };
 
     const handleFullscreen = () => {
       if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
-        console.warn("Anti-cheat flag: Exited Fullscreen manually.");
-        enforceFocus();
+        console.warn("Anti-cheat flag: Exited Fullscreen — auto-submitting.");
+        logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Exited Fullscreen`, null, examId).catch(e => console.error(e));
+        submitRef.current();
       }
     };
     
@@ -182,13 +193,13 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
       }
     };
 
-    window.addEventListener("blur", enforceFocus);
+    window.addEventListener("blur", handleBlur);
     window.addEventListener("keydown", handleKeydown);
     document.addEventListener("visibilitychange", handleVisibility);
     document.addEventListener("fullscreenchange", handleFullscreen);
 
     return () => {
-      window.removeEventListener("blur", enforceFocus);
+      window.removeEventListener("blur", handleBlur);
       window.removeEventListener("keydown", handleKeydown);
       document.removeEventListener("visibilitychange", handleVisibility);
       document.removeEventListener("fullscreenchange", handleFullscreen);

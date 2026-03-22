@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { getExamById, fetchSubmissionsByExamOutput, Exam, ExamSubmission } from "@/lib/examService";
+import { getExamById, fetchSubmissionsByExam, Exam, ExamSubmission } from "@/lib/examService";
 import { Users, FileText, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,7 +18,7 @@ export default function ExamSubmissionsPage({ params }: { params: Promise<{ id: 
     const init = async () => {
       const [e, s] = await Promise.all([
         getExamById(examId),
-        fetchSubmissionsByExamOutput(examId)
+        fetchSubmissionsByExam(examId)
       ]);
       if (e) setExam(e);
       setSubmissions(s || []);

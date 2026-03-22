@@ -9,7 +9,7 @@ export async function logSentinelViolation(type: string, imageBlob: Blob | null,
   let imageUrl: string | null = null;
   
   if (imageBlob && supabaseUrl !== "https://placeholder-url.supabase.co") {
-    const fileName = `${Date.now()}-${type.replace(/\\s+/g, '-')}.jpg`;
+    const fileName = `${Date.now()}-${type.replace(/\s+/g, '-')}.jpg`;
     
     // Upload to bucket
     const { data: uploadData, error: uploadError } = await supabase.storage

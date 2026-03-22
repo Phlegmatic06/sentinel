@@ -73,6 +73,7 @@ export default function AdminPage() {
         await uploadExam({
           title: parsed.title,
           description: parsed.description || "",
+          duration_minutes: parsed.duration_minutes,
           questions: parsed.questions
         });
 

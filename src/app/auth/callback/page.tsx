@@ -10,18 +10,24 @@ export default function AuthCallbackPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check for error in hash fragment (e.g. expired OTP links)
+    const hash = window.location.hash;
+    if (hash) {
+      const params = new URLSearchParams(hash.substring(1));
+      const hashError = params.get("error_description");
+      if (hashError) {
+        setError(hashError.replace(/\+/g, " "));
+        return;
+      }
+    }
+
     const handleAuth = async () => {
-      // Supabase parses the hash fragment automatically.
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
         setError(sessionError.message);
         return;
       }
-
-      // Check if this is a password recovery flow
-      // A common way to check is if there's type=recovery in the URL hash, but supabase handles it by firing PASSWORD_RECOVERY event
-      // We can also just listen to the event
     };
 
     handleAuth();
@@ -43,8 +49,8 @@ export default function AuthCallbackPage() {
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
       <div className="text-center">
         {error ? (
-          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 font-medium">
-            {error}
+          <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 font-medium max-w-md">
+            <p className="mb-4">{error}</p>
             <div className="mt-4">
               <button 
                 onClick={() => router.push('/auth')}

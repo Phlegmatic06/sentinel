@@ -161,7 +161,7 @@ export async function submitExamAnswers(submissionData: Omit<ExamSubmission, 'id
   return id;
 }
 
-export async function fetchSubmissionsByExamOutput(examId: string): Promise<ExamSubmission[]> {
+export async function fetchSubmissionsByExam(examId: string): Promise<ExamSubmission[]> {
   if (isSupabaseConfigured()) {
     const { data, error } = await supabase.from('sentinel_submissions').select('*').eq('exam_id', examId).order('created_at', { ascending: false });
     if (error) {
