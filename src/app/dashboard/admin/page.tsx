@@ -93,31 +93,31 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="flex-1 p-8 max-w-7xl mx-auto w-full flex flex-col gap-8">
+    <div className="flex-1 p-8 pt-32 max-w-7xl mx-auto w-full flex flex-col gap-8 h-full">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-orbitron font-bold text-white flex items-center gap-3 tracking-wider">
-            <Database className="text-cyan-500 w-8 h-8" />
-            TEST ADMIN CONSOLE
+          <h2 className="text-3xl font-bold text-white flex items-center gap-3 tracking-tight">
+            <Database className="text-purple-400 w-7 h-7" />
+            Test Admin Console
           </h2>
-          <p className="text-slate-400 mt-1 font-inter">Manage MCQ exams and test sheets.</p>
+          <p className="text-slate-400 mt-1.5">Manage MCQ exams and test sheets.</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Link 
             href="/dashboard/admin/builder"
-            className="px-6 py-2 rounded-lg bg-cyan-600 border border-cyan-500 hover:bg-cyan-500 transition-colors tracking-widest text-sm font-bold font-orbitron flex items-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+            className="px-5 py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 transition-colors text-sm font-semibold flex items-center gap-2 shadow-[0_0_20px_rgba(124,58,237,0.25)] text-white"
           >
-            + CREATE EXAM
+            + Create Exam
           </Link>
           <Link 
             href="/dashboard"
-            className="px-6 py-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium"
+            className="px-5 py-2 rounded-lg border border-white/8 bg-white/3 hover:bg-white/6 transition-colors text-sm font-medium text-slate-300"
           >
             Back to Vault
           </Link>
           <button 
             onClick={handleLogout}
-            className="px-4 py-2 rounded-full border border-red-500/20 bg-red-950/20 text-red-400 hover:bg-red-900/40 transition-colors text-sm font-medium flex items-center gap-2"
+            className="px-4 py-2 rounded-lg border border-red-500/15 bg-red-500/5 text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium flex items-center gap-2"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
@@ -128,12 +128,12 @@ export default function AdminPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
         {/* Upload Interface */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] flex flex-col gap-4">
-          <h3 className="text-lg font-bold text-cyan-400 font-orbitron mb-2">UPLOAD TEST SHEET (.JSON)</h3>
+        <div className="glass-panel p-6 flex flex-col gap-4">
+          <h3 className="text-base font-semibold text-purple-400 mb-1">Upload Test Sheet (.JSON)</h3>
           
-          <div className="border-2 border-dashed border-cyan-500/30 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-white/5 transition-colors cursor-pointer relative group">
-            <Upload className="w-12 h-12 text-slate-400 group-hover:text-cyan-400 transition-colors mb-4" />
-            <p className="text-slate-300 font-medium font-inter">Click or drag a JSON file here</p>
+          <div className="border-2 border-dashed border-purple-500/20 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-white/3 transition-colors cursor-pointer relative group">
+            <Upload className="w-10 h-10 text-slate-500 group-hover:text-purple-400 transition-colors mb-4" />
+            <p className="text-slate-300 font-medium">Click or drag a JSON file here</p>
             <p className="text-slate-500 text-sm mt-2">Must contain &apos;title&apos; and &apos;questions&apos; array</p>
             <input  
               type="file" 
@@ -145,12 +145,12 @@ export default function AdminPage() {
           </div>
 
           {errorMsg && (
-            <div className="mt-4 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg text-sm">
+            <div className="mt-2 bg-red-500/8 border border-red-500/15 text-red-400 px-4 py-3 rounded-lg text-sm">
               {errorMsg}
             </div>
           )}
           {successMsg && (
-            <div className="mt-4 bg-green-500/10 border border-green-500/20 text-green-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+            <div className="mt-2 bg-green-500/8 border border-green-500/15 text-green-400 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
               <CheckCircle className="w-5 h-5" />
               {successMsg}
             </div>
@@ -158,7 +158,7 @@ export default function AdminPage() {
 
           <div className="mt-2 text-xs text-slate-500 bg-black/20 p-4 rounded-lg font-mono">
             <strong>Sample JSON Structure:</strong>
-            <pre className="mt-2 overflow-x-auto text-cyan-200/60">
+            <pre className="mt-2 overflow-x-auto text-purple-300/50">
 {`{
   "title": "Computer Science 101",
   "questions": [
@@ -175,21 +175,21 @@ export default function AdminPage() {
         </div>
 
         {/* Exam List */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] flex flex-col gap-4">
-          <h3 className="text-lg font-bold text-cyan-400 font-orbitron mb-2">AVAILABLE EXAMS</h3>
+        <div className="glass-panel p-6 flex flex-col gap-4">
+          <h3 className="text-base font-semibold text-purple-400 mb-1">Available Exams</h3>
           
           <div className="flex flex-col gap-3 overflow-y-auto max-h-[500px] pr-2">
             {loading ? (
               <p className="text-slate-500 italic animate-pulse">Loading exams...</p>
             ) : exams.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-8 bg-black/20 rounded-xl border border-white/5 text-slate-500">
+              <div className="flex flex-col items-center justify-center p-8 bg-white/2 rounded-xl border border-white/5 text-slate-500">
                 <FileJson className="w-10 h-10 mb-2 opacity-50" />
                 <p>No exams uploaded yet.</p>
               </div>
             ) : (
               exams.map((exam) => (
-                <div key={exam.id} className="bg-black/30 border border-white/5 hover:border-cyan-500/30 transition-colors p-4 rounded-xl flex flex-col gap-2 relative group">
-                  <h4 className="text-slate-200 font-bold">{exam.title}</h4>
+                <div key={exam.id} className="bg-white/3 border border-white/5 hover:border-purple-500/20 transition-colors p-4 rounded-xl flex flex-col gap-2 relative group">
+                  <h4 className="text-slate-200 font-semibold">{exam.title}</h4>
                   <p className="text-slate-400 text-sm">{exam.questions.length} Questions • {new Date(exam.created_at).toLocaleDateString()}</p>
                   
                   <div className="mt-2 pt-3 border-t border-white/5 flex items-center justify-between">
@@ -197,27 +197,27 @@ export default function AdminPage() {
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/dashboard/admin/builder?edit=${exam.id}`}
-                        className="text-xs bg-blue-950/40 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20 hover:bg-blue-900/60 transition-colors flex items-center gap-1"
+                        className="text-xs bg-blue-500/8 text-blue-400 px-3 py-1 rounded-md border border-blue-500/15 hover:bg-blue-500/15 transition-colors flex items-center gap-1"
                         title="Edit Exam"
                       >
                         <Edit className="w-3 h-3" /> Edit
                       </Link>
                       <button
                         onClick={() => handleDeleteExam(exam.id, exam.title)}
-                        className="text-xs bg-red-950/40 text-red-400 px-3 py-1 rounded-full border border-red-500/20 hover:bg-red-900/60 transition-colors flex items-center gap-1"
+                        className="text-xs bg-red-500/8 text-red-400 px-3 py-1 rounded-md border border-red-500/15 hover:bg-red-500/15 transition-colors flex items-center gap-1"
                         title="Delete Exam"
                       >
                         <Trash2 className="w-3 h-3" /> Delete
                       </button>
                       <Link 
                         href={`/dashboard/admin/exam/${exam.id}`}
-                        className="text-xs bg-purple-950/40 text-purple-400 px-3 py-1 rounded-full border border-purple-500/20 hover:bg-purple-900/60 transition-colors"
+                        className="text-xs bg-purple-500/8 text-purple-400 px-3 py-1 rounded-md border border-purple-500/15 hover:bg-purple-500/15 transition-colors"
                       >
                         Submissions
                       </Link>
                       <button 
                         onClick={() => handleCopyLink(exam.id)}
-                        className="text-xs bg-cyan-950/40 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/20 hover:bg-cyan-900/60 transition-colors flex items-center gap-1"
+                        className="text-xs bg-violet-500/8 text-violet-400 px-3 py-1 rounded-md border border-violet-500/15 hover:bg-violet-500/15 transition-colors flex items-center gap-1"
                         title="Copy Exam Link"
                       >
                         {copiedId === exam.id ? (

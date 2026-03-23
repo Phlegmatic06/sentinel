@@ -208,19 +208,19 @@ export default function SentinelEngine({ onViolation, onReady }: SentinelEngineP
   const hasCrit = activeViolations.size > 0;
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] border bg-white/5 backdrop-blur-2xl transition-all duration-500">
+    <div className="relative w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] border border-white/8 bg-white/3 backdrop-blur-2xl transition-all duration-500 font-sans">
       
       {/* Sentinel Pulse Border */}
       <div className={`absolute inset-0 pointer-events-none border-4 transition-all duration-300 z-20 rounded-xl ${
         hasCrit 
           ? "border-red-500 shadow-[inset_0_0_50px_rgba(239,68,68,0.5)] animate-pulse" 
-          : "border-cyan-500/50 shadow-[inset_0_0_30px_rgba(6,182,212,0.3)] animate-pulse"
+          : "border-purple-500/30 shadow-[inset_0_0_30px_rgba(124,58,237,0.2)] animate-pulse"
       }`} />
 
       {/* Critical Overlay */}
       {hasCrit && (
         <div className="absolute top-4 left-0 right-0 z-30 flex justify-center animate-bounce">
-          <div className="bg-red-500/90 text-white px-6 py-2 rounded-full font-orbitron font-bold tracking-widest flex items-center gap-2 shadow-[0_0_20px_rgba(239,68,68,0.8)] border border-red-400">
+          <div className="bg-red-500/90 text-white px-6 py-2 rounded-full font-bold tracking-tight flex items-center gap-2 shadow-[0_0_20px_rgba(239,68,68,0.8)] border border-red-400">
             <AlertTriangle className="w-5 h-5" />
             CRITICAL: {Array.from(activeViolations).join(", ")}
           </div>
@@ -229,9 +229,10 @@ export default function SentinelEngine({ onViolation, onReady }: SentinelEngineP
 
       {/* Loading State */}
       {!isLoaded && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#020617] text-cyan-400 font-orbitron">
-          <ShieldCheck className="w-16 h-16 mb-4 animate-pulse opacity-50" />
-          <p className="tracking-widest animate-pulse">INITIALIZING SENTINEL AI ENGINE...</p>
+        <div className="absolute inset-0 z-40 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center text-center p-4 border border-purple-500/20 rounded-xl">
+           <ShieldCheck className="w-16 h-16 text-purple-400 mb-4 animate-pulse opacity-50" />
+           <p className="text-purple-400 font-bold text-lg tracking-tight animate-pulse uppercase">Initializing Sentinel AI Engine</p>
+           <p className="text-slate-400 text-sm mt-2">Loading neural weights and sensor stream...</p>
         </div>
       )}
 
@@ -241,6 +242,7 @@ export default function SentinelEngine({ onViolation, onReady }: SentinelEngineP
         className="w-full h-auto rounded-xl object-cover scale-x-[-1]" 
         playsInline 
         muted 
+        autoPlay
       />
     </div>
   );

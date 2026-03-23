@@ -43,11 +43,12 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   if (isAuthenticated === null) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
-        <Loader2 className="w-10 h-10 text-cyan-500 animate-spin mb-4" />
-        <h2 className="text-xl font-orbitron font-bold text-white tracking-widest animate-pulse">
-          VERIFYING CREDENTIALS...
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 font-sans selection:bg-purple-500/30">
+        <Loader2 className="w-10 h-10 text-purple-500 animate-spin mb-6" />
+        <h2 className="text-2xl font-bold text-white tracking-tight animate-pulse">
+          Verifying Credentials
         </h2>
+        <p className="text-slate-400 mt-2">Checking secure terminal session...</p>
       </div>
     );
   }

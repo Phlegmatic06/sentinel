@@ -71,32 +71,32 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="flex-1 p-8 max-w-7xl mx-auto w-full flex flex-col gap-6">
+    <div className="flex-1 p-8 pt-32 max-w-7xl mx-auto w-full flex flex-col gap-8 h-full">
       
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-orbitron font-bold text-white flex items-center gap-3 tracking-wider">
-            <ShieldAlert className="text-red-500 w-8 h-8" />
-            EVIDENCE VAULT
+          <h2 className="text-3xl font-bold text-white flex items-center gap-3 tracking-tight">
+            <ShieldAlert className="text-red-400 w-7 h-7" />
+            Evidence Vault
           </h2>
-          <p className="text-slate-400 mt-1 font-inter">Audit trail of all detected violations</p>
+          <p className="text-slate-400 mt-1.5">Audit trail of all detected violations</p>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <Link 
             href="/dashboard/admin"
-            className="px-6 py-2 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white transition-colors text-sm font-bold shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+            className="px-5 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white transition-colors text-sm font-semibold shadow-[0_0_20px_rgba(124,58,237,0.25)]"
           >
             Admin Console
           </Link>
           <Link 
             href="/"
-            className="px-6 py-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium"
+            className="px-5 py-2 rounded-lg border border-white/8 bg-white/3 hover:bg-white/6 transition-colors text-sm font-medium text-slate-300"
           >
             Return to Monitor
           </Link>
           <button 
             onClick={handleLogout}
-            className="px-4 py-2 rounded-full border border-red-500/20 bg-red-950/20 text-red-400 hover:bg-red-900/40 transition-colors text-sm font-medium flex items-center gap-2"
+            className="px-4 py-2 rounded-lg border border-red-500/15 bg-red-500/5 text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium flex items-center gap-2"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
@@ -104,37 +104,37 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+      <div className="glass-panel overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-white/5 border-b border-white/10 font-orbitron text-sm text-cyan-400 tracking-wider">
-                <th className="py-4 px-6 font-medium">TIMESTAMP</th>
-                <th className="py-4 px-6 font-medium">VIOLATION TYPE</th>
-                <th className="py-4 px-6 font-medium text-right">EVIDENCE</th>
+              <tr className="bg-white/3 border-b border-white/6 text-sm text-purple-400 tracking-wide">
+                <th className="py-4 px-6 font-medium">Timestamp</th>
+                <th className="py-4 px-6 font-medium">Violation Type</th>
+                <th className="py-4 px-6 font-medium text-right">Evidence</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
                   <td colSpan={3} className="py-12 text-center text-slate-500 animate-pulse font-mono">
-                    FETCHING AUDIT LOGS...
+                    Fetching audit logs...
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-12 text-center text-slate-500 font-mono">
-                    NO VIOLATIONS DETECTED.
+                  <td colSpan={3} className="py-12 text-center text-slate-500">
+                    No violations detected.
                   </td>
                 </tr>
               ) : (
                 logs.map((log) => (
-                  <tr key={log.id} className="border-b border-white/5 hover:bg-white/5 transition-colors font-mono text-sm">
-                    <td className="py-4 px-6 text-slate-300">
+                  <tr key={log.id} className="border-b border-white/3 hover:bg-white/3 transition-colors text-sm">
+                    <td className="py-4 px-6 text-slate-300 font-mono text-xs">
                       {new Date(log.created_at).toLocaleString()}
                     </td>
                     <td className="py-4 px-6">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/8 text-red-400 border border-red-500/15">
                         {log.violation_type}
                       </span>
                     </td>
@@ -142,13 +142,13 @@ export default function DashboardPage() {
                       {log.image_url ? (
                         <button 
                           onClick={() => setSelectedImage(log.image_url)}
-                          className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors shadow-[0_0_10px_rgba(6,182,212,0.2)] bg-cyan-950/30 px-3 py-1.5 rounded-md border border-cyan-500/30"
+                          className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors bg-purple-500/8 px-3 py-1.5 rounded-md border border-purple-500/15"
                         >
                           <ExternalLink className="w-4 h-4" />
                           View Snapshot
                         </button>
                       ) : (
-                        <span className="text-slate-500 italic">No snapshot</span>
+                        <span className="text-slate-500 italic text-xs">No snapshot</span>
                       )}
                     </td>
                   </tr>
@@ -162,18 +162,18 @@ export default function DashboardPage() {
       {/* Evidence Modal */}
       {selectedImage && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="relative max-w-5xl w-full bg-slate-900 border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black/50">
-              <h3 className="text-lg font-orbitron font-bold text-cyan-400">EVIDENCE SNAPSHOT</h3>
+          <div className="relative max-w-5xl w-full glass-panel overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-white/6">
+              <h3 className="text-lg font-semibold text-purple-400">Evidence Snapshot</h3>
               <button 
                 onClick={() => setSelectedImage(null)}
-                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                className="p-1.5 hover:bg-white/8 rounded-lg transition-colors"
                 aria-label="Close modal"
               >
-                <X className="w-6 h-6 text-slate-400" />
+                <X className="w-5 h-5 text-slate-400" />
               </button>
             </div>
-            <div className="p-1 max-h-[80vh] overflow-auto flex justify-center bg-black/50">
+            <div className="p-2 max-h-[80vh] overflow-auto flex justify-center bg-black/30">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src={selectedImage} 
