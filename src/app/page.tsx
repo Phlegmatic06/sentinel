@@ -26,15 +26,18 @@ export default function Home() {
   return (
     <div className="flex flex-col flex-1 w-full items-center justify-center p-8 gap-10 h-full">
       {!sessionActive ? (
-        <div className="flex flex-col items-center max-w-lg text-center gap-8">
-          <div className="w-20 h-20 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shadow-[0_0_40px_rgba(124,58,237,0.15)]">
-            <ShieldAlert className="w-10 h-10 text-purple-400" />
+        <div className="flex flex-col items-center max-w-lg text-center gap-8 relative">
+          {/* Vibrant center glow for this screen */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-purple-500/10 dark:bg-purple-600/20 rounded-full blur-[100px] -z-10" />
+          
+          <div className="w-20 h-20 rounded-2xl bg-purple-500/10 dark:bg-purple-500/10 border border-purple-500/20 dark:border-purple-500/20 flex items-center justify-center shadow-[0_0_40px_rgba(124,58,237,0.15)] dark:shadow-[0_0_40px_rgba(124,58,237,0.15)]">
+            <ShieldAlert className="w-10 h-10 text-purple-600 dark:text-purple-400" />
           </div>
-          <div className="flex flex-col gap-3">
-            <h2 className="text-4xl font-bold text-white tracking-tight">
+          <div className="flex flex-col gap-3.5">
+            <h2 className="text-4xl font-bold text-[var(--text-primary)] tracking-tight">
               Proctoring Ready
             </h2>
-            <p className="text-slate-400 leading-relaxed text-lg">
+            <p className="text-[var(--text-secondary)] leading-relaxed text-base max-w-sm mx-auto">
               Your environment will be monitored securely by the Sentinel AI Engine. 
               Ensure your face remains in frame and your workspace is clear of prohibited devices.
             </p>
@@ -48,7 +51,7 @@ export default function Home() {
         </div>
       ) : (
         <div className="w-full flex flex-col items-center gap-8 animate-in fade-in zoom-in duration-500">
-          <div className="flex items-center gap-3 text-purple-400 bg-purple-500/10 px-6 py-2.5 rounded-full border border-purple-500/20 shadow-[0_0_20px_rgba(124,58,237,0.1)]">
+          <div className="flex items-center gap-3 text-purple-600 dark:text-purple-400 bg-purple-500/10 dark:bg-purple-500/10 px-6 py-2.5 rounded-full border border-purple-500/20 dark:border-purple-500/20 shadow-[0_0_20px_rgba(124,58,237,0.1)] dark:shadow-[0_0_20px_rgba(124,58,237,0.1)]">
             <ShieldCheck className="w-5 h-5 animate-pulse" />
             <span className="tracking-wide text-sm font-medium">Live Monitoring Active</span>
           </div>
@@ -56,7 +59,7 @@ export default function Home() {
           <SentinelEngine onViolation={handleViolation} />
           
           <div className="w-full max-w-4xl glass-panel p-6 h-48 overflow-y-auto font-mono text-sm">
-            <h3 className="text-purple-400 font-semibold mb-4 border-b border-white/5 pb-2 tracking-wide text-sm">System Audit Trail</h3>
+            <h3 className="text-purple-600 dark:text-purple-400 font-semibold mb-4 border-b border-slate-200 dark:border-white/5 pb-2 tracking-wide text-sm">System Audit Trail</h3>
             {lastViolation ? (
               <div className="text-red-400 animate-pulse bg-red-500/10 border border-red-500/15 px-4 py-3 rounded-lg flex items-center gap-3">
                 <span className="font-bold">[{lastViolation.time.toLocaleTimeString()}]</span> 

@@ -4,14 +4,50 @@
   --color-brand-purple: #7c3aed;
   --color-brand-lavender: #a78bfa;
   --color-brand-dark: #030014;
+  --color-brand-light: #f8faff;
   --font-inter: "Inter", sans-serif;
 }
 
+@layer base {
+  :root {
+    --bg-primary: #f8faff;
+    --bg-secondary: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-primary: rgba(0, 0, 0, 0.08);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --orb-opacity: 0.08;
+    --orb-color-1: rgba(124, 58, 237, 0.12);
+    --orb-color-2: rgba(139, 92, 246, 0.1);
+    --orb-color-3: rgba(167, 139, 250, 0.08);
+    --accent-glow: rgba(124, 58, 237, 0.05);
+    --footer-bg: rgba(255, 255, 255, 0.7);
+  }
+
+  .dark {
+    --bg-primary: #020617;
+    --bg-secondary: #070a1a;
+    --text-primary: #f4f0ff;
+    --text-secondary: #94a3b8;
+    --border-primary: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --orb-opacity: 0.5;
+    --orb-color-1: rgba(124, 58, 237, 0.25);
+    --orb-color-2: rgba(236, 72, 153, 0.15);
+    --orb-color-3: rgba(139, 92, 246, 0.2);
+    --accent-glow: rgba(124, 58, 237, 0.1);
+    --footer-bg: rgba(2, 6, 23, 0.6);
+  }
+}
+
 body {
-  background-color: #030014;
-  color: #f4f0ff;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   overflow-x: hidden;
   font-family: var(--font-inter);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Cosmic Ambient Orbs */
@@ -19,15 +55,15 @@ body {
   position: fixed;
   border-radius: 50%;
   filter: blur(140px);
-  z-index: -11;
-  opacity: 0.35;
+  z-index: 0;
+  opacity: var(--orb-opacity);
   pointer-events: none;
   animation: float 25s infinite ease-in-out alternate;
 }
 
-.glow-orb-1 { width: 600px; height: 600px; background: rgba(124, 58, 237, 0.2); top: -200px; left: -100px; }
-.glow-orb-2 { width: 500px; height: 500px; background: rgba(139, 92, 246, 0.15); bottom: -100px; right: -100px; animation-delay: -5s; }
-.glow-orb-3 { width: 700px; height: 700px; background: rgba(167, 139, 250, 0.1); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -10s; }
+.glow-orb-1 { width: 600px; height: 600px; background: var(--orb-color-1); top: -200px; left: -100px; }
+.glow-orb-2 { width: 500px; height: 500px; background: var(--orb-color-2); bottom: -100px; right: -100px; animation-delay: -5s; }
+.glow-orb-3 { width: 700px; height: 700px; background: var(--orb-color-3); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -10s; }
 
 @keyframes float {
   0% { transform: translateY(0) scale(1); }
@@ -37,16 +73,25 @@ body {
 
 /* Reflect Glass Panel */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--glass-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.04);
   border-radius: 1rem;
   transition: all 0.3s ease;
 }
 
+.dark .glass-panel {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+}
+
 .glass-panel:hover {
+  border-color: rgba(124, 58, 237, 0.3);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08), 0 0 30px var(--accent-glow);
+}
+
+.dark .glass-panel:hover {
   border-color: rgba(124, 58, 237, 0.15);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 30px rgba(124, 58, 237, 0.06);
 }

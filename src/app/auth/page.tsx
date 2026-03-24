@@ -62,20 +62,17 @@ export default function AuthPage() {
   return (
     <div className="relative h-[100svh] w-full overflow-hidden selection:bg-purple-500/30">
       
-      {/* Background glow */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/8 rounded-full blur-[140px]" />
-      </div>
+      {/* Page content */}
 
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4 z-10">
         <div className="absolute bottom-full left-0 w-full text-center pb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/3 border border-white/8 shadow-[0_0_30px_rgba(124,58,237,0.15)] mb-6">
-            <ShieldAlert className="w-8 h-8 text-purple-400" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-[0_0_30px_rgba(124,58,237,0.15)] dark:shadow-[0_0_30px_rgba(124,58,237,0.2)] mb-6">
+            <ShieldAlert className="w-8 h-8 text-purple-600 dark:text-purple-400" />
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight mb-3">
+          <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-3 tracking-tight">
             Sentinel Admin
           </h1>
-          <p className="text-slate-400">
+          <p className="text-[var(--text-secondary)] text-base">
             {isLogin ? "Access the central command console." : "Initialize a new command account."}
           </p>
         </div>
@@ -97,14 +94,14 @@ export default function AuthPage() {
 
             <div className="space-y-5">
               <div>
-                <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                   Admin Email
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-white/3 border border-white/8 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500/50 transition-all"
+                  className="w-full bg-slate-100/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:focus:ring-purple-500/40 focus:border-purple-500/50 dark:focus:border-purple-500/50 transition-all font-sans"
                   placeholder="admin@sentinel.sys"
                   required
                 />
@@ -112,11 +109,11 @@ export default function AuthPage() {
 
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider">
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Security Passcode
                   </label>
                   {isLogin && (
-                    <a href="/auth/reset-password" className="text-xs text-purple-400 hover:text-purple-300 transition-colors">
+                    <a href="/auth/reset-password" className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors">
                       Forgot Password?
                     </a>
                   )}
@@ -125,7 +122,7 @@ export default function AuthPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-white/3 border border-white/8 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500/50 transition-all font-mono"
+                  className="w-full bg-slate-100/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:focus:ring-purple-500/40 focus:border-purple-500/50 dark:focus:border-purple-500/50 transition-all font-mono"
                   placeholder="••••••••"
                   required
                 />
@@ -157,7 +154,7 @@ export default function AuthPage() {
                   setError(null);
                   setMessage(null);
                 }}
-                className="text-sm text-slate-400 hover:text-purple-400 transition-colors font-medium"
+                className="text-sm text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium"
               >
                 {isLogin 
                   ? "Need access? Request new admin credentials" 

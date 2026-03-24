@@ -71,15 +71,12 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="flex-1 p-8 pt-32 max-w-7xl mx-auto w-full flex flex-col gap-8 h-full">
+    <div className="flex-1 p-8 pt-32 max-w-7xl mx-auto w-full flex flex-col gap-8 h-full relative z-10">
       
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-white flex items-center gap-3 tracking-tight">
-            <ShieldAlert className="text-red-400 w-7 h-7" />
-            Evidence Vault
-          </h2>
-          <p className="text-slate-400 mt-1.5">Audit trail of all detected violations</p>
+        <div className="flex flex-col gap-2 mb-10 text-center md:text-left">
+          <h1 className="text-3xl font-bold text-[var(--text-primary)] tracking-tight">Evidence Vault</h1>
+          <p className="text-[var(--text-secondary)]">Secure log of all flagged activities and system violations.</p>
         </div>
         <div className="flex gap-3">
           <Link 
@@ -108,10 +105,10 @@ export default function DashboardPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-white/3 border-b border-white/6 text-sm text-purple-400 tracking-wide">
-                <th className="py-4 px-6 font-medium">Timestamp</th>
-                <th className="py-4 px-6 font-medium">Violation Type</th>
-                <th className="py-4 px-6 font-medium text-right">Evidence</th>
+              <tr className="bg-white/5 dark:bg-white/5 border-b border-white/10 dark:border-white/10 text-sm text-purple-600 dark:text-purple-400 tracking-wide">
+                <th className="py-4 px-6 font-semibold uppercase text-[10px] tracking-widest">Timestamp</th>
+                <th className="py-4 px-6 font-semibold uppercase text-[10px] tracking-widest">Violation Type</th>
+                <th className="py-4 px-6 font-semibold uppercase text-[10px] tracking-widest text-right">Evidence</th>
               </tr>
             </thead>
             <tbody>
@@ -129,15 +126,14 @@ export default function DashboardPage() {
                 </tr>
               ) : (
                 logs.map((log) => (
-                  <tr key={log.id} className="border-b border-white/3 hover:bg-white/3 transition-colors text-sm">
-                    <td className="py-4 px-6 text-slate-300 font-mono text-xs">
-                      {new Date(log.created_at).toLocaleString()}
-                    </td>
+                  <tr key={log.id} className="border-b border-white/5 dark:border-white/5 hover:bg-white/[0.02] dark:hover:bg-white/[0.02] transition-colors">
+                    <td className="py-4 px-6 text-[var(--text-primary)] font-medium">#{log.id.slice(0, 8)}</td>
                     <td className="py-4 px-6">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-red-500/8 text-red-400 border border-red-500/15">
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-500/10 text-red-500 border border-red-500/20">
                         {log.violation_type}
                       </span>
                     </td>
+                    <td className="py-4 px-6 text-[var(--text-secondary)]">{new Date(log.created_at).toLocaleString()}</td>
                     <td className="py-4 px-6 text-right">
                       {log.image_url ? (
                         <button 
