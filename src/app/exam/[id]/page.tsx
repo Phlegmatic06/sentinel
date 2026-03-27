@@ -4,7 +4,7 @@ import { useEffect, useState, use, useRef } from "react";
 import SentinelEngine, { ViolationType } from "@/components/SentinelEngine";
 import { getExamById, submitExamAnswers, Exam } from "@/lib/examService";
 import { logSentinelViolation } from "@/lib/supabase";
-import { AlertCircle, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { AlertCircle, ShieldCheck, CheckCircle2, Shield, Clock, Camera } from "lucide-react";
 import Link from "next/link";
 
 export default function ExamPage({ params }: { params: Promise<{ id: string }> }) {
@@ -20,6 +20,11 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState<{ earned: number; total: number } | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [fullscreenError, setFullscreenError] = useState(false);
+  const [isFullScreenTruth, setIsFullScreenTruth] = useState(false);
+  const [isBypassActive, setIsBypassActive] = useState(false);
+  const [isBrave, setIsBrave] = useState(false);
+  const examContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -56,8 +61,8 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
     // Exit fullscreen
     try {
       const doc = document as any;
-      const exitFS = doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-      if (document.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement) {
+      const exitFS = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+      if (document.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement) {
         if (exitFS) exitFS.call(doc).catch((err: any) => console.warn(err));
       }
     } catch (err) {
@@ -73,23 +78,74 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
     });
   };
 
-  const startExam = async () => {
-    try {
-      const docEl = document.documentElement as any;
-      const requestFS = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
-      
-      if (!document.fullscreenElement && !docEl.webkitFullscreenElement && requestFS) {
-        await requestFS.call(docEl);
-      } else if (!requestFS) {
-        return alert("Your browser does not support Fullscreen Mode. Please use a modern browser.");
-      }
-    } catch (err) {
-      console.warn("Fullscreen request failed", err);
-      alert("You MUST allow Fullscreen mode to begin this exam. Please check your browser permissions.");
-      return; // Block entry
-    }
-    setSessionActive(true);
+  const checkFullscreenTruth = () => {
+    const isFS = !!(document.fullscreenElement || (document as any).webkitFullscreenElement || (document as any).mozFullScreenElement || (document as any).msFullscreenElement);
+    
+    // Check if the viewport height is actually close to the screen height
+    // Threshold set to 60px for all standard browsers
+    const gap = Math.abs(window.screen.height - window.innerHeight);
+    // If the browser is Brave, we trust its auto-fullscreen state and skip dimension checks
+    const truth = isFS && (isDimensionFS || isBypassActive || isBrave);
+    setIsFullScreenTruth(truth);
+    return truth;
   };
+
+  const startExam = () => {
+    setFullscreenError(false);
+    const docEl = document.documentElement as any;
+
+    const requestFS = 
+      docEl.requestFullscreen || 
+      docEl.webkitRequestFullscreen || 
+      docEl.webkitRequestFullScreen || 
+      docEl.mozRequestFullScreen || 
+      docEl.mozRequestFullscreen || 
+      docEl.msRequestFullscreen;
+
+    if (requestFS) {
+      const fsPromise = requestFS.call(docEl, { navigationUI: "hide" });
+      
+      if (fsPromise instanceof Promise) {
+        fsPromise
+          .then(() => {
+            // Wait 800ms for browser transition to stabilize
+            setTimeout(() => {
+              const truth = checkFullscreenTruth();
+              if (truth) {
+                setSessionActive(true);
+                setFullscreenError(false);
+              } else {
+                setFullscreenError(true);
+              }
+            }, 800);
+          })
+          .catch((err) => {
+            console.error("Fullscreen error:", err);
+            setFullscreenError(true);
+          });
+      } else {
+        setSessionActive(true);
+      }
+    } else {
+      alert("Fullscreen not supported on this browser.");
+    }
+  };
+
+  useEffect(() => {
+    const handleResize = () => checkFullscreenTruth();
+    window.addEventListener("resize", handleResize);
+    
+    // Detect Brave Browser
+    const detectBrave = async () => {
+      const nav = navigator as any;
+      if (nav.brave && await nav.brave.isBrave()) {
+        setIsBrave(true);
+      }
+    };
+    detectBrave();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const logoLink = document.getElementById("sentinel-logo-link");
@@ -155,41 +211,44 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
     if (!sessionActive || submitted) return;
 
     const handleBlur = () => {
-      blurCountRef.current += 1;
-      console.warn(`Anti-cheat flag: Window Blur (strike ${blurCountRef.current}/2).`);
-      logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Window Blur (strike ${blurCountRef.current})`, null, examId).catch(e => console.error(e));
-      
-      if (blurCountRef.current >= 2) {
-        console.warn("2 blur violations reached — auto-submitting.");
-        submitRef.current();
-      }
+      console.warn("Anti-cheat flag: Window Focus Lost — Zero Tolerance — auto-submitting.");
+      logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Window Focus Lost`, null, examId).catch(x => console.error(x));
+      submitRef.current();
     };
 
     const handleVisibility = () => {
       if (document.hidden) {
-        console.warn("Anti-cheat flag: Tab Switch detected — auto-submitting.");
-        logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Tab Switch`, null, examId).catch(e => console.error(e));
+        console.warn("Anti-cheat flag: Tab Switch Detected — Zero Tolerance — auto-submitting.");
+        logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Tab Switch`, null, examId).catch(x => console.error(x));
         submitRef.current();
       }
     };
 
     const handleFullscreen = () => {
-      if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
-        console.warn("Anti-cheat flag: Exited Fullscreen — auto-submitting.");
-        logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Exited Fullscreen`, null, examId).catch(e => console.error(e));
+      const doc = document as any;
+      const isFS = !!(document.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
+      const isDimensionFS = Math.abs(window.screen.height - window.innerHeight) < 60;
+      
+      // If the user used the Brave bypass, we ignore the dimension requirement
+      if (!isFS || (!isDimensionFS && !isBypassActive)) {
+        console.warn("Anti-cheat flag: Fullscreen Lock Lost — auto-submitting.");
+        logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Fullscreen Lock Lost`, null, examId).catch(x => console.error(x));
         submitRef.current();
       }
     };
     
     // Extensive Keyboard Restriction
     const handleKeydown = (e: KeyboardEvent) => {
-      // Block F1-F12 keys, Ctrl, Alt combinations usually used for DevTools, Print, TaskMgr, etc.
-      if (
-        e.key.startsWith("F") || 
-        (e.ctrlKey && ['p','c','v','x','s','shift','i','u'].includes(e.key.toLowerCase())) ||
-        (e.altKey && e.key === 'Tab')
-      ) {
+      if (!sessionActive) return;
+      
+      const isSystemKey = e.key.startsWith("F") || e.key === "Tab" || e.key === "Escape";
+      const isControlCombo = (e.ctrlKey || e.metaKey) && ['p','c','v','x','s','shift','i','u','k','f','l'].includes(e.key.toLowerCase());
+      const isAltTab = e.altKey && e.key === "Tab";
+
+      if (isSystemKey || isControlCombo || isAltTab) {
         e.preventDefault();
+        e.stopPropagation();
+        console.warn(`Blocked shortcut attempt: ${e.key}`);
       }
     };
 
@@ -237,11 +296,26 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div 
-      className={`min-h-screen flex flex-col relative overflow-hidden bg-[#030014] ${sessionActive ? 'select-none' : ''}`}
+      ref={examContainerRef}
+      className={`min-h-screen flex-1 flex flex-col relative overflow-hidden bg-[#030014] ${sessionActive ? 'select-none' : ''}`}
       onCopy={(e) => sessionActive && e.preventDefault()}
       onCut={(e) => sessionActive && e.preventDefault()}
       onPaste={(e) => sessionActive && e.preventDefault()}
       onContextMenu={(e) => sessionActive && e.preventDefault()}
+      onKeyDown={(e) => {
+        if (!sessionActive) return;
+        // Block shortcuts like Ctrl+C, Ctrl+V, Ctrl+P, Ctrl+U, F12, etc.
+        if (e.ctrlKey || e.metaKey) {
+          const forbidden = ['c', 'v', 'p', 'u', 's', 'j', 'i'];
+          if (forbidden.includes(e.key.toLowerCase())) {
+            e.preventDefault();
+            console.warn(`Blocked shortcut: ${e.key}`);
+          }
+        }
+        if (e.key === 'F12') {
+          e.preventDefault();
+        }
+      }}
     >
       {/* Top Banner */}
       <div className="bg-purple-950/20 border-b border-purple-500/15 px-6 py-2.5 flex items-center gap-4 z-40 relative backdrop-blur-md shrink-0">
@@ -287,12 +361,28 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
                 />
               </div>
 
+              {fullscreenError && !isBrave && (
+                <div className="p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-start gap-4 mt-4 text-left">
+                  <AlertCircle className="w-6 h-6 text-orange-400 shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-orange-400 leading-tight">Screen Dimension Mismatch</p>
+                    <p className="text-[10px] font-mono text-orange-300/60 mt-0.5">
+                      Viewport: {window.innerHeight}px | Screen: {window.screen.height}px
+                    </p>
+                    <p className="text-xs text-orange-400/80 leading-relaxed mt-2">
+                      Your browser is in Fullscreen but hasn't hidden your tabs/sidebar. Press <strong>F11</strong> to toggle true lockdown.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <button 
                 disabled={!candidateName.trim() || !cameraReady}
                 onClick={startExam}
                 className="mt-6 w-full py-3.5 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-[0_0_25px_rgba(124,58,237,0.3)] transition-all"
               >
-                {cameraReady ? "Accept & Start Exam" : "Awaiting Camera Sensor..."}
+                {!cameraReady ? "Awaiting Camera Sensor..." : 
+                 fullscreenError ? "Re-verify Fullscreen Status" : "Accept & Start Exam"}
               </button>
             </div>
           ) : (

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileJson, CheckCircle, Database, Trash2, Edit, Copy, LogOut } from "lucide-react";
+import { FileJson, CheckCircle, Database, Trash2, Edit, Copy, LogOut, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { uploadExam, fetchExams, deleteExam, Exam } from "@/lib/examService";
+import { SmartImporter } from "@/components/SmartImporter";
 
 export default function AdminPage() {
   const [exams, setExams] = useState<Exam[]>([]);
@@ -83,6 +84,15 @@ export default function AdminPage() {
       </div>
 
       <div className="flex flex-col gap-8 max-w-5xl mx-auto w-full">
+        
+        {/* Smart Import Center */}
+        <section>
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-4 h-4 text-purple-500" />
+            <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-widest">Smart Import Center</h3>
+          </div>
+          <SmartImporter onImportComplete={loadExams} />
+        </section>
         
 
         {/* Exam List */}

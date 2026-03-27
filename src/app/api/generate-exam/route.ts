@@ -18,13 +18,23 @@ export async function POST(request: Request) {
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-    const prompt = `You are an expert educational assessment creator. Based on the following source material, generate 3 to 5 multiple-choice questions that test key concepts.
-You MUST respond with a strictly valid JSON array of question objects. Do not include any markdown formatting, backticks, or explanation.
-Each object must have the exact following structure:
+    const prompt = `You are an expert at extracting and formatting educational assessments. 
+Your task is to analyze the provided source material and extract multiple-choice questions (MCQs).
+
+INSTRUCTIONS:
+1. Extract as many clear MCQs as you can find (up to 10).
+2. If the text is a general description, generate questions based on the key facts.
+3. If the text already contains questions (e.g., "1. What is..."), extract them exactly as written.
+4. Each question MUST have 2 to 4 options.
+5. You MUST identify the correct answer based on the context or explicit answers in the text.
+6. You MUST respond with a strictly valid JSON array of question objects. 
+7. Do not include any markdown formatting, backticks, or text outside the JSON array.
+
+JSON STRUCTURE:
 {
-  "id": "a unique string like ai_q1",
+  "id": "a unique string",
   "text": "the question text",
-  "options": ["option 1", "option 2", "option 3", "option 4"],
+  "options": ["string1", "string2", ...],
   "correct_answer": "the exact string of the correct option"
 }
 
@@ -34,7 +44,7 @@ ${sourceText}`;
     // 'llama3-8b-8192' or 'mixtral-8x7b-32768' are reliable fast models on Groq
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
     });
 
     const output = chatCompletion.choices[0]?.message?.content;
