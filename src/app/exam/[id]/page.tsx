@@ -83,7 +83,8 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
     
     // Check if the viewport height is actually close to the screen height
     // Threshold set to 60px for all standard browsers
-    const gap = Math.abs(window.screen.height - window.innerHeight);
+    const isDimensionFS = Math.abs(window.screen.height - window.innerHeight) < 60;
+    
     // If the browser is Brave, we trust its auto-fullscreen state and skip dimension checks
     const truth = isFS && (isDimensionFS || isBypassActive || isBrave);
     setIsFullScreenTruth(truth);
@@ -229,9 +230,9 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
       const isFS = !!(document.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement);
       const isDimensionFS = Math.abs(window.screen.height - window.innerHeight) < 60;
       
-      // If the user used the Brave bypass, we ignore the dimension requirement
-      if (!isFS || (!isDimensionFS && !isBypassActive)) {
-        console.warn("Anti-cheat flag: Fullscreen Lock Lost — auto-submitting.");
+      // If the browser is Brave, we skip dimension requirements as it's more reliable
+      if (!isFS || (!isDimensionFS && !isBrave && !isBypassActive)) {
+        console.warn("Anti-cheat flag: Fullscreen Lock Lost — Zero Tolerance — auto-submitting.");
         logSentinelViolation(`EXAM [${examId}] - ${candidateName}: Fullscreen Lock Lost`, null, examId).catch(x => console.error(x));
         submitRef.current();
       }
@@ -241,14 +242,14 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
     const handleKeydown = (e: KeyboardEvent) => {
       if (!sessionActive) return;
       
-      const isSystemKey = e.key.startsWith("F") || e.key === "Tab" || e.key === "Escape";
-      const isControlCombo = (e.ctrlKey || e.metaKey) && ['p','c','v','x','s','shift','i','u','k','f','l'].includes(e.key.toLowerCase());
-      const isAltTab = e.altKey && e.key === "Tab";
+      const isSystemKey = e.key.startsWith("F") || e.key === "Tab" || e.key === "Escape" || e.key === "Meta" || e.key === "ContextMenu";
+      const isControlCombo = (e.ctrlKey || e.metaKey) && ['p','c','v','x','s','shift','i','u','k','f','l','n','t','w'].includes(e.key.toLowerCase());
+      const isAltCombo = e.altKey && (['Tab', 'F4', 'ArrowLeft', 'ArrowRight'].includes(e.key));
 
-      if (isSystemKey || isControlCombo || isAltTab) {
+      if (isSystemKey || isControlCombo || isAltCombo) {
         e.preventDefault();
         e.stopPropagation();
-        console.warn(`Blocked shortcut attempt: ${e.key}`);
+        console.warn(`Blocked prohibited shortcut attempt: ${e.key}`);
       }
     };
 
@@ -448,9 +449,15 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
                )}
             </div>
 
-            <div className="mt-2 text-[10px] font-mono text-slate-500 bg-white/2 p-3 rounded-xl border border-white/5">
-              <p className="text-purple-400 font-semibold mb-1">System Status: {sessionActive ? "Online" : "Standby"}</p>
-              <ul className="list-disc pl-4 flex flex-col transition-opacity duration-300 opacity-80 gap-0.5">
+            <div className={`mt-2 text-[10px] font-mono p-3 rounded-xl border transition-all duration-500 ${
+              sessionActive 
+                ? "bg-purple-500/10 border-purple-500/30 text-purple-200 shadow-[0_0_15px_rgba(168,85,247,0.1)]" 
+                : "bg-white/2 border-white/5 text-slate-500"
+            }`}>
+              <p className={`${sessionActive ? "text-purple-400 font-bold" : "text-slate-400"} mb-1`}>
+                System Status: {sessionActive ? "ONLINE" : "STANDBY"}
+              </p>
+              <ul className={`list-disc pl-4 flex flex-col gap-0.5 transition-opacity duration-500 ${sessionActive ? "opacity-100" : "opacity-60"}`}>
                 <li>Face Mesh Tracking: {sessionActive ? "Active" : "Warming up"}</li>
                 <li>Object Classification: {sessionActive ? "Active" : "Warming up"}</li>
                 <li>Gaze Vector Analytics: {sessionActive ? "Active" : "Warming up"}</li>
