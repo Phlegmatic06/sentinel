@@ -122,3 +122,25 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(124, 58, 237, 0.35);
 }
+
+/* Force Input Visibility Overrides */
+input, select, textarea {
+  color: #0f172a !important; /* Default light mode text */
+}
+
+.dark input, .dark select, .dark textarea {
+  color: #ffffff !important; /* Default dark mode text */
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #020617 inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.dark input::placeholder {
+  color: #94a3b8 !important;
+}

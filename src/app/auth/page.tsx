@@ -4,6 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { ShieldAlert, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -92,40 +93,32 @@ export default function AuthPage() {
               </div>
             )}
 
-            <div className="space-y-5">
-              <div>
-                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                  Admin Email
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-100/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:focus:ring-purple-500/40 focus:border-purple-500/50 dark:focus:border-purple-500/50 transition-all font-sans"
-                  placeholder="admin@sentinel.sys"
-                  required
-                />
-              </div>
+            <div className="space-y-8 mt-4">
+              <Input
+                id="admin-email-input"
+                label="Admin Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
 
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    Security Passcode
-                  </label>
-                  {isLogin && (
-                    <a href="/auth/reset-password" className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors">
-                      Forgot Password?
-                    </a>
-                  )}
-                </div>
-                <input
+              <div className="relative">
+                <Input
+                  id="password-input"
+                  label="Password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-100/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/40 dark:focus:ring-purple-500/40 focus:border-purple-500/50 dark:focus:border-purple-500/50 transition-all font-mono"
-                  placeholder="••••••••"
                   required
                 />
+                {isLogin && (
+                  <div className="flex justify-end mt-2">
+                    <a href="/auth/reset-password" className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 transition-colors">
+                      Forgot Password?
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
 
