@@ -40,23 +40,13 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
     await logSentinelViolation(`EXAM [${examId}] - ${candidateName}: ${type}`, blob, examId);
   };
 
-  const calculateScore = () => {
-    if (!exam) return 0;
-    let earned = 0;
-    exam.questions.forEach((q) => {
-      if (answers[q.id] === q.correct_answer) {
-        earned += 1;
-      }
-    });
-    return earned;
-  };
+  // Score is now calculated on the server for security (RLS Hardened)
 
   const submitTest = async () => {
-    if (!exam) return;
-    const earned = calculateScore();
-    setScore({ earned, total: exam.questions.length });
-    setSubmitted(true);
-    setSessionActive(false); // Stop proctoring
+    if (!exam || submitted) return;
+    
+    // Stop proctoring immediately to avoid transition glitches
+    setSessionActive(false); 
 
     // Exit fullscreen
     try {
@@ -69,13 +59,23 @@ export default function ExamPage({ params }: { params: Promise<{ id: string }> }
       console.warn("Exit fullscreen failed", err);
     }
 
-    await submitExamAnswers({
-      exam_id: exam.id,
-      candidate_name: candidateName,
-      answers,
-      score: earned,
-      total_questions: exam.questions.length,
-    });
+    // Submit to server and get the verified score (server-side calculation)
+    try {
+      const result = await submitExamAnswers({
+        exam_id: exam.id,
+        candidate_name: candidateName,
+        answers,
+        score: 0, // No longer needed here but kept for interface compatibility
+        total_questions: exam.questions.length,
+      });
+
+      setScore({ earned: result.score, total: result.total });
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Submission failed:", err);
+      setSessionActive(true); // Restore if failed? Probably not for security, but alert the user
+      alert("Submission failed. Your progress might not have been saved. Please contact your coordinator.");
+    }
   };
 
   const checkFullscreenTruth = () => {

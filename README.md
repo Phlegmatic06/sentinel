@@ -103,9 +103,26 @@ Head to `http://localhost:3000` and you're live.
 
 ## Deployment
 
-Push to GitHub → import into [Vercel](https://vercel.com/new) → add env vars → deploy. That's it.
+### 1. Vercel (Recommended)
+Sentinel is optimized for Vercel. Push your code to GitHub and import the project.
 
-Don't forget to update your **Supabase Site URL** (under Authentication → URL Configuration) to your Vercel domain so email confirmation links work correctly.
+**Required Environment Variables:**
+| Variable | Description |
+|----------|-------------|
+| `GROQ_API_KEY` | Your Groq API key (Llama 3 8B) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase Anon Key |
+
+**Post-Deployment Steps:**
+1. Update your **Supabase Site URL** (under Authentication → URL Configuration) to your Vercel domain.
+2. Ensure your Supabase Storage bucket `sentinel-evidence` is set to **Public** if you want to view snapshots in the dashboard easily.
+
+### 2. Manual Commands
+If you need to build locally before pushing:
+```bash
+npm run build
+```
+The optimized build includes all AI models bundled for edge deployment.
 
 ---
 

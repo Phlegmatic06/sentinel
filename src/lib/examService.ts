@@ -128,9 +128,24 @@ export async function updateExam(id: string, examData: Partial<Omit<Exam, 'id' |
 
 export async function getExamById(id: string): Promise<Exam | null> {
   if (isSupabaseConfigured()) {
-    const { data, error } = await supabase.from('sentinel_exams').select('*').eq('id', id).single();
-    if (error) return null;
-    return data as Exam;
+    // Try to fetch the full exam data (only works if user is the authenticated owner due to RLS)
+    const { data: adminData } = await supabase
+      .from('sentinel_exams')
+      .select('*')
+      .eq('id', id)
+      .single();
+      
+    if (adminData) return adminData as Exam;
+
+    // Fallback: Use the safe RPC that strips correct answers for candidates
+    const { data: safeData, error: rpcError } = await supabase
+      .rpc('get_safe_exam', { p_exam_id: id });
+    
+    if (!rpcError && safeData) {
+      return safeData as Exam;
+    }
+    
+    return null;
   } else {
     if (typeof window !== "undefined") {
       const exams = JSON.parse(window.localStorage.getItem('sentinel_exams') || '[]') as Exam[];
@@ -140,25 +155,41 @@ export async function getExamById(id: string): Promise<Exam | null> {
   }
 }
 
-export async function submitExamAnswers(submissionData: Omit<ExamSubmission, 'id' | 'created_at'>): Promise<string> {
-  const id = crypto.randomUUID();
-  const submission: ExamSubmission = {
-    ...submissionData,
-    id,
-    created_at: new Date().toISOString()
-  };
-
+export async function submitExamAnswers(submissionData: Omit<ExamSubmission, 'id' | 'created_at'>): Promise<{id: string, score: number, total: number}> {
   if (isSupabaseConfigured()) {
-    const { error } = await supabase.from('sentinel_submissions').insert(submission);
-    if (error) console.error("Supabase Submit Error:", error);
+    // Call the secure RPC to calculate score on the server and insert
+    const { data: rpcData, error } = await supabase.rpc('submit_exam_secure', {
+      p_exam_id: submissionData.exam_id,
+      p_candidate_name: submissionData.candidate_name,
+      p_answers: submissionData.answers
+    });
+    
+    if (error || !rpcData) {
+      console.error("Supabase Submit Error:", error);
+      throw new Error(error?.message || "Failed to submit exam");
+    }
+
+    // RPC returns "id|score|total"
+    const [subId, score, total] = rpcData.split('|');
+    return { 
+      id: subId, 
+      score: parseInt(score), 
+      total: parseInt(total) 
+    };
   } else {
+    const id = crypto.randomUUID();
+    const submission: ExamSubmission = {
+      ...submissionData,
+      id,
+      created_at: new Date().toISOString()
+    };
     if (typeof window !== "undefined") {
       const submissions = JSON.parse(window.localStorage.getItem('sentinel_submissions') || '[]');
       submissions.push(submission);
       window.localStorage.setItem('sentinel_submissions', JSON.stringify(submissions));
     }
+    return { id, score: submissionData.score, total: submissionData.total_questions };
   }
-  return id;
 }
 
 export async function fetchSubmissionsByExam(examId: string): Promise<ExamSubmission[]> {
